@@ -1,0 +1,142 @@
+@import url('https://fonts.googleapis.com/css2?family=Protest+Guerrilla&display=swap');
+
+* {
+  margin: 0;
+  padding:10px;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #000a0e;
+  color: white;
+  font-family: "Protest Guerrilla", sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+  position: relative;
+}
+
+/* Logo Top Right */
+.logo {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 200px;
+}
+
+/* Heading */
+h1 {
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+.clark {
+  color: #d42b7a;
+}
+.va {
+  color: #2bced4;
+}
+
+/* Centered Assistant GIF */
+#voice-anim {
+  width: 300px;
+  height: auto;
+  margin: 30px 0;
+  display: block;
+}
+
+/* Microphone Button */
+#mic-btn {
+  background: linear-gradient(to right, rgb(21, 145, 207), rgb(201, 41, 116));
+  border: none;
+  padding: 12px 25px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  box-shadow: 2px 2px 10px rgb(21, 145, 207), 2px 2px 10px rgb(201, 41, 116);
+  transition: 0.4s ease;
+}
+#mic-btn:hover {
+  box-shadow: 0 0 25px rgb(201, 41, 116), 0 0 25px rgb(21, 145, 207);
+}
+#mic-btn img {
+  width: 50px;
+  height: 50px;
+}
+
+/* Conversation output */
+#output {
+  margin-top: 30px;
+  font-family: "Protest Guerrilla", sans-serif;
+  background-color: #1a1a1a;
+  border-radius: 10px;
+  padding: 15px 20px;
+  max-width: 600px;
+  width: 90%;
+  color: #ddd;
+  font-size: 1rem;
+  line-height: 1.5;
+  box-shadow: 0 0 10px #2bced4;
+}
+
+
+#live-feed {
+  display: none;
+  width: 430px;
+  height: 320px;
+  max-width: 40%;
+  margin: 20px auto;
+  border: 2px solid #00ffff;
+  border-radius: 10px;
+  box-shadow: 0 0 15px #0ff;
+}
+
+#control-buttons {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.control-btn {
+  background: linear-gradient(to right, rgb(21, 145, 207), rgb(201, 41, 116));
+  border: none;
+  padding: 5px 10px;
+  border-radius: 25px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px rgb(21, 145, 207), 2px 2px 10px rgb(201, 41, 116);
+  transition: 0.4s ease;
+}
+
+.control-btn:hover {
+  box-shadow: 0 0 25px rgb(201, 41, 116), 0 0 25px rgb(21, 145, 207);
+}
+
+.control-btn img {
+  width: 50px;
+  height: 50px;
+}
+
+
+
+#site-footer {
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+  font-size: 0.9rem;
+  color: #000000;
+  background: linear-gradient(to right, rgb(21, 145, 207), rgb(201, 41, 116));
+  padding: 5px 10px;
+  border-radius: 5px;
+  z-index: 1000;
+  font-family: Arial, sans-serif;
+}
