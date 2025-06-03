@@ -15,6 +15,7 @@ pytesseract
 tesseract
 undetected-chromedriver
 flask-socketio
+dateparser
 
 
 

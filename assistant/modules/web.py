@@ -3,6 +3,8 @@ import urllib.parse
 import shutil
 import time
 from audio.voice import tts
+from assistant import core
+import re
 
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
@@ -58,11 +60,25 @@ def perform_web_action(prompt):
         return search_amazon(prompt)
 
     elif "top 5" in prompt or "cheapest" in prompt:
-        if last_context["intent"] == "amazon_search" and last_context["query"]:
-            return search_amazon(last_context["query"], raw=True)
+        if last_context["intent"] == "amazon_search" and last_context["results"]:
+            results = last_context["results"]
+
+            if "cheapest" in prompt:
+                sorted_items = sorted(results, key=lambda x: float(x['price'].replace('$', '').replace(',', '') or 9999))
+                best = sorted_items[0]
+                tts(f"The cheapest item is {best['title']}, priced at {best['price']}")
+                return f"Cheapest: {best['title']} - {best['price']}"
+
+            elif "top" in prompt:
+                response = "Here are the top items:\n"
+                for item in results:
+                    response += f"{item['title']} — {item['price']} — {item['rating']}\n"
+                return response
+
         else:
             return "Can you clarify what you'd like me to list?"
-
+        
+    
     elif "buy it" in prompt or "order it" in prompt:
         return confirm_amazon_checkout()
 
@@ -98,11 +114,19 @@ def search_amazon(prompt, raw=False):
         results = []
                 
         for item in items[:5]:  
-            title_elem = item.select_one("h2 span.a-text-normal")
+            # Extract title, price, and rating
+            title_elem = item.select_one("h2 a span.a-text-normal") \
+                or item.select_one("h2 a") \
+                or item.select_one("h2 span")
             price_elem = item.select_one("span.a-price > span.a-offscreen")
             rating_elem = item.select_one("span.a-icon-alt")
 
             title = title_elem.text.strip() if title_elem else "No title"
+            # Truncate title for usability (max 80 x TTS)
+            if len(title) > 80:
+                title = title[:77].rstrip() + "..."
+            title = re.sub(r'\s+', ' ', title).strip() 
+                
             price = price_elem.text.strip() if price_elem else "Unknown"
             rating = rating_elem.text.strip() if rating_elem else "No rating"
 
@@ -127,7 +151,12 @@ def search_amazon(prompt, raw=False):
 
 
 def extract_keywords(prompt):
-    ignore = ["can you", "please", "could you", "would you", "i want", "search", "look for", "find", "on amazon", "in amazon", "browse", "buy", "order", "for me", "a product", "the product", "check", "see"]
+    ignore = [
+        "can you", "please", "could you", "would you", "i want",
+        "search", "look for", "find", "on amazon", "in amazon", "browse",
+        "buy", "order", "for me", "a product", "the product", "check", "see",
+        "clark", "for"
+    ]
     prompt = prompt.lower()
     for phrase in ignore:
         prompt = prompt.replace(phrase, "")
@@ -170,33 +199,36 @@ def confirm_amazon_checkout():
 
         tts("Attempting to add the item to cart and simulate checkout.")
 
-        # Click first product
-        product = last_driver.find_elements(By.CSS_SELECTOR, "h2 a")[0]
-        product.click()
-        time.sleep(2)
+        # Get selected item from memory
+        selected = getattr(core, "selected_amazon_item", None)
+        if not selected:
+            return "No selected item to add. Please choose an item first."
 
-        # Switch to new tab
+        all_products = last_driver.find_elements(By.CSS_SELECTOR, "h2 a")
+        match = None
+        for product in all_products:
+            if selected["title"].lower() in product.text.lower():
+                match = product
+                break
+
+        if not match:
+            return "I couldn’t find the selected product on the page."
+
+        match.click()
+        time.sleep(2)
         last_driver.switch_to.window(last_driver.window_handles[-1])
 
-        # OPTIONAL: Login if needed
         if "signin" in last_driver.current_url:
             login_amazon(last_driver)
 
-        # Click 'Add to cart'
         add_btn = last_driver.find_element(By.ID, "add-to-cart-button")
         add_btn.click()
         time.sleep(2)
 
-        # Proceed to cart
         last_driver.get("https://www.amazon.com/gp/cart/view.html")
         time.sleep(2)
 
-        # Simulate final step
-        tts("Item is now in cart. For demo, I’m stopping before payment.")
-
-        # Optionally go to cart (don't buy!)
-        tts("Item added to cart. I’m stopping here for safety.")
-
+        tts("Item is now in cart. For demo, I’ll stop here before payment.")
         return "Added to cart. Ready for checkout, but we’re stopping for demo."
 
     except Exception as e:

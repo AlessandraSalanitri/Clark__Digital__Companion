@@ -100,7 +100,7 @@ class Assistant:
 
             # CROSSING DETECTION
             elif intent == "crossing":
-                response = crossing.analyze_crossing(image_b64, stream=webcam)
+                response = crossing.analyze_crossing(image_b64)
                 return {"text": response}
 
             # TIME
@@ -128,7 +128,9 @@ class Assistant:
 
             # CALENDAR
             elif intent == "calendar":
-                return {"text": calendar_module.handle_calendar_command(prompt)}
+                from controllers.calendar_controller import clark_handle_calendar
+                return clark_handle_calendar(prompt)
+
 
             # TRAIN
             elif intent == "train":
@@ -150,6 +152,7 @@ class Assistant:
                 lowered = prompt.lower()
                 import re
 
+                # 1. List the cheapest
                 if "cheapest" in lowered:
                     try:
                         cheapest = min(
@@ -157,6 +160,8 @@ class Assistant:
                             key=lambda x: float(x["price"].replace("$", "").replace(",", ""))
                             if x["price"] != "Unknown" else float('inf')
                         )
+                        self.selected_amazon_item = cheapest  # store for later
+                        
                         return {
                             "text": f"The cheapest is: {cheapest['title']} for {cheapest['price']} with rating {cheapest['rating']}"
                         }
@@ -164,6 +169,7 @@ class Assistant:
                         print("[Follow-up error - cheapest]", e)
                         return {"text": "Sorry, I couldn’t determine the cheapest option."}
 
+                # 2. List the top 5
                 elif "top 5" in lowered or "best" in lowered:
                     top_items = self.last_results[:5]
                     lines = [
@@ -172,14 +178,34 @@ class Assistant:
                     ]
                     return {"text": "Here are the top 5:\n" + "\n".join(lines)}
 
+                # 3. Specific item by number
                 elif re.search(r"\bnumber\s*(\d+)\b", lowered):
                     index = int(re.search(r"\bnumber\s*(\d+)\b", lowered).group(1)) - 1
                     if 0 <= index < len(self.last_results):
                         selected = self.last_results[index]
+                        self.selected_amazon_item = selected  # store selection
                         web.confirm_amazon_checkout()  # simulate confirmation
-                        return {"text": f"You selected item number {index+1}: {selected['title']} for {selected['price']}. It's added to cart!"}
+                        return {
+                            "text": f"You selected item number {index+1}: {selected['title']} for {selected['price']}. It's added to cart!"
+                        }
                     else:
                         return {"text": "I couldn’t find that item number."}
+
+                # 4. Add to cart / basket follow-up
+                elif intent == "amazon-add":
+                    if hasattr(self, "selected_amazon_item") and self.selected_amazon_item:
+                        try:
+                            item = self.selected_amazon_item
+                            web.confirm_amazon_checkout()  # simulate
+                            return {
+                                "text": f"Added {item['title']} to your Amazon cart. (Simulated)"
+                            }
+                        except Exception as e:
+                            print("[Cart Add Error]", e)
+                            return {"text": "I couldn’t add that to the cart, something went wrong."}
+                    else:
+                        return {"text": "I’m not sure which item you meant. Please say 'cheapest' or 'number 1' again."}
+
 
             # Google summary follow-up
             if hasattr(self, "last_summary") and ("yes" in prompt or "summarize" in prompt):

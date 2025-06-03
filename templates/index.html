@@ -10,9 +10,11 @@
   <body>
     <img src="/static/logo.png" alt="Clark logo" class="logo" />
 
-    <h1><span class="clark">Clark</span>. your <span class="va">Virtual Assistant.</span></h1>
+    <h1><span class="clark">Clark</span>. your <span class="va">Digital Companion.</span></h1>
 
-    <img src="/static/clark.gif" alt="Listening..." id="voice-anim" />
+    <div class="avatar-container">
+      <img id="mouth" src="/static/visemes/neutral.png" alt="Clark mouth animation" />
+    </div>
 
     <button id="mic-btn">
       <img src="/static/mic.svg" alt="mic" />
@@ -25,8 +27,11 @@
     </div>
 
     <!-- Img camera preview -->
-    <!-- <img id="camera-feed" src="/static/preview.jpg" alt="Clark's camera view" style="display:none;" /> -->
     <img id="live-feed" src="/video_feed" />
+
+    <!-- Bell notifications reminder-->
+    <img id="bell" src="/static/bell.svg" style="display:block;" />
+
 
     <div id="output">Clark's responses will appear here...</div>
 
@@ -36,5 +41,7 @@
 
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='mouth-sync.js') }}"></script>
+
   </body>
 </html>

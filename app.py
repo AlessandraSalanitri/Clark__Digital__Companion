@@ -12,16 +12,20 @@ from routes.train_routes import train_bp
 from routes.time_routes import time_bp
 from routes.ocr_routes import ocr_bp
 from routes.crossing_routes import crossing_bp
+from routes.calendar_routes import calendar_bp
 
 app = Flask(__name__)
 
 socketio.init_app(app, cors_allowed_origins="*")
 
 ######### BLUEPRINTS #########
+
+app.register_blueprint(intent_bp) # INTENT 
+app.register_blueprint(assistant_bp, url_prefix="/assistant") # CLARK BRAIN
+
+
 app.register_blueprint(voice_bp) # VOICE
 app.register_blueprint(webcam_bp) # WEBCAM 
-app.register_blueprint(assistant_bp, url_prefix="/assistant") # CLARK BRAIN
-app.register_blueprint(intent_bp) # INTENT 
 app.register_blueprint(logger_bp) # LOGGER
 
 ######### MODULES FEATURES #########
@@ -31,6 +35,11 @@ app.register_blueprint(weather_bp, url_prefix="/weather") # WEATHER
 app.register_blueprint(time_bp, url_prefix="/time") # TIME
 app.register_blueprint(ocr_bp, url_prefix="/ocr") # OCR 
 app.register_blueprint(crossing_bp, url_prefix="/crossing") # CROSSING STREET
+
+
+######### CALENDAR REMINDER- NOTIFICATION #########
+app.register_blueprint(calendar_bp, url_prefix="/calendar")
+
 
 @app.route("/")
 def index():

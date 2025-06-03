@@ -3,6 +3,7 @@ from assistant.intent_router import detect_intent
 from langchain_openai import ChatOpenAI
 from controllers.webcam_controller import start_camera, stop_camera, save_preview_to_file
 from controllers.web_controller import confirm_checkout
+from assistant.utils.logger import log_text, save_image_b64
 import base64
 import os
 
@@ -32,6 +33,12 @@ def handle_user_prompt(prompt: str):
             return {"response": confirm_checkout(), "image_preview_b64": None}
 
         result = assistant.handle(prompt, image_b64=image_b64)
+        
+         # --- Log interaction ---
+        log_text(prompt, intent, result)
+        if image_b64:
+            save_image_b64(image_b64, label=intent)
+
 
         # Normalize the response for TTS — always return a string
         if isinstance(result, dict) and "text" in result:

@@ -34,7 +34,7 @@ def detect_intent(prompt: str) -> str:
     
     # help to read
     if any(x in prompt for x in [
-        "read", 
+        "read the expiry date", 
         "read this notes", 
         "text", 
         "expiry", 
@@ -53,9 +53,7 @@ def detect_intent(prompt: str) -> str:
         "valid until" 
         "what's written",        
         "what is written",      
-        "see what’s written",    
-        "can you read this",     
-        "read this",             
+        "see what’s written",                
         "any ingredients", 
         "what's this box",
         "what does it say",        
@@ -80,6 +78,21 @@ def detect_intent(prompt: str) -> str:
     if any(x in prompt for x in ["play", "search", "youtube", "open", "browse"]):
         return "web"
     
+    # help add item to Amazon basket
+    if any(x in prompt for x in [
+        "add to basket", 
+        "add to cart", 
+        "order it", 
+        "buy it", 
+        "get it",
+        "put it in my cart",
+        "place the order",
+        "i want this one",
+        "i’ll take it"
+    ]):
+        return "amazon-add"
+
+    
     # help know the weather
     if any(x in prompt for x in ["weather", "rain", "sun", "temperature", "forecast"]):
         return "weather"
@@ -93,12 +106,16 @@ def detect_intent(prompt: str) -> str:
         return "calendar"
     
     # help book train
-    if any(x in prompt for x in ["train", "ticket", "search train tickets", "book", "book a train", "departure", "arrival", "travel to", "station"]):
+    if any(x in prompt for x in ["train", "ticket", "search train tickets", "book a train", "departure", "arrival", "travel to", "station"]):
         return "train"
     
     # help confirmation train booked
     if any(x in prompt for x in ["yes", "book it", "confirm train", "proceed with train", "go ahead", "i want this ticket"]):
         return "train-confirm"
+    
+    # help reminders notifications
+    if any(x in prompt for x in ["remind me", "add to calendar", "notify me", "appointment", "reminder", "set reminder", "add reminder", "schedule"]):
+        return "calendar"
    
    # help release anxiety, stress, loneliness- human-like companion.
     if any(x in prompt for x in ["sad", "lonely", "depressed", "anxious", "scared", "upset"]):

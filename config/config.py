@@ -15,7 +15,7 @@ DEMO_AMAZON_EMAIL = os.getenv("DEMO_AMAZON_EMAIL")
 DEMO_AMAZON_PASSWORD = os.getenv("DEMO_AMAZON_PASSWORD")
 
 
-# Check for missing keys (optional)
+# Check for missing keys
 if not OPENAI_API_KEY:
     raise ValueError("Missing OPENAI_API_KEY in .env")
 if not OPENWEATHER_API_KEY:

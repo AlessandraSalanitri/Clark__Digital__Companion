@@ -6,6 +6,7 @@ import base64
 import io
 import time
 from audio.voice import tts
+from camera.webcam import WebcamStream
 
 def decode_base64_image(image_b64):
     image_data = base64.b64decode(image_b64)
@@ -40,41 +41,66 @@ def detect_timer_text(frame):
     digits = ''.join(filter(str.isdigit, text))
     return digits
 
-def analyze_crossing(image_b64, stream=None):
+def analyze_crossing(image_b64):
     try:
         frame = decode_base64_image(image_b64)
         status = detect_light_status(frame)
 
         if status == "green":
-            return "The pedestrian light is green. It's safe to cross the street. "
+            return "The pedestrian light is green. It's safe to cross the street."
 
         elif status in ["red", "yellow"]:
             tts("The pedestrian light is red. Do NOT cross now! I'll tell you when it's green.")
             print("🚦 Clark: monitoring for green light...")
 
-            # Continue watching live video for green
+            stream = WebcamStream().start()  # initialize stream here
             start_time = time.time()
-            while time.time() - start_time < 30:
-                if stream:
-                    frame = stream.read()
+            notified_low_timer = False
+            unknown_counter = 0
+
+            try:
+                while time.time() - start_time < 30:
+                    frame_bytes = stream.read(encode=False)
+                    if frame_bytes is None:
+                        time.sleep(0.5)
+                        continue
+
+                    frame_array = np.frombuffer(frame_bytes, dtype=np.uint8)
+                    frame = cv2.imdecode(frame_array, cv2.IMREAD_COLOR)
                     if frame is None:
                         continue
+
                     status = detect_light_status(frame)
+                    print(f"[DEBUG] Light status during monitoring: {status}")
+
                     if status == "green":
                         tts("The light is green now. You can cross safely.")
                         return "The light is green now. You can cross safely."
 
-                    # OCR fallback each cycle
+                    if status == "unknown":
+                        unknown_counter += 1
+                        if unknown_counter > 5:
+                            tts("Clark can't see the signal clearly. Please try adjusting your view.")
+                            return "Clark couldn't detect the signal clearly after several attempts."
+                    else:
+                        unknown_counter = 0
+
                     digits = detect_timer_text(frame)
-                    if digits.isdigit():
+                    if digits.isdigit() and not notified_low_timer:
                         seconds = int(digits[:2]) if len(digits) > 1 else int(digits)
                         if seconds <= 3:
                             tts("Only a few seconds left on the signal. Please wait.")
+                            notified_low_timer = True
                         elif seconds <= 10:
                             tts(f"{seconds} seconds left. Cross if you're quick.")
-                time.sleep(1)
+                            notified_low_timer = True
 
-            return "Still red after 30 seconds. Please try again in a bit."
+                    time.sleep(1)
+            finally:
+                stream.stop()
+
+            tts("The light is still red after 30 seconds. Please try again soon.")
+            return "Clark monitored for green but it stayed red."
 
         else:
             return "I couldn't clearly detect the traffic light. Try pointing directly at the signal."
