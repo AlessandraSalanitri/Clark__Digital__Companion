@@ -33,12 +33,12 @@ pip install -r requirements.txt
 pip install selenium webdriver-manager beautifulsoup4
 
 # 5. Add your own .env file
-# (Create .env)
-# Add:
-# OPENAI_API_KEY=your-key-here
-# OPENWEATHER_API_KEY =your-key-here
-# DEFAULT_CITY=your-prefered-default-city-for-weather-info-here
-# (Example: DEFAULT_CITY=London)
+`(Create .env)
+`Add:
+`OPENAI_API_KEY=your-key-here
+`OPENWEATHER_API_KEY =your-key-here
+`DEFAULT_CITY=your-prefered-default-city-for-weather-info-here
+`(Example: DEFAULT_CITY=London)
 
 # 6. Run the app
 python app.py
