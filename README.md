@@ -32,12 +32,13 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 pip install -r requirements.txt
 pip install selenium webdriver-manager beautifulsoup4
 
-# 5. Just for run the program easily, I have left the .env file for you with:
-OPENWEATHER_API_KEY =my key
-DEFAULT_CITY= London
-and fake credentials for amazon accounts
-# Please Add:
+# 5. Add your own .env file
+`(Create .env)
+`Add:
 `OPENAI_API_KEY=your-key-here
+`OPENWEATHER_API_KEY =your-key-here
+`DEFAULT_CITY=your-prefered-default-city-for-weather-info-here
+`(Example: DEFAULT_CITY=London)
 
 # 6. Run the app
 python app.py
